@@ -40,17 +40,18 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const validatedData = loginValidationSchema.parse(req.body);
 
   const result = await AuthService.loginUser(validatedData);
+  const isProduction = process.env.NODE_ENV === "production";
 
   res.cookie("accessToken", result.accessToken, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   res.status(status.OK).json({
