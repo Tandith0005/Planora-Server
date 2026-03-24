@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../utils/AppError.js";
+import { ZodError } from "zod";
 
 export const globalErrorHandler = (
   err: any,
@@ -24,9 +25,14 @@ export const globalErrorHandler = (
   }
 
   // Zod errors
-  else if (err.name === "ZodError") {
+  else if (err instanceof ZodError || err.name === "ZodError") {
     statusCode = 400;
-    message = err.errors.map((e: any) => e.message).join(", ");
+    // SAFE MAPPING: Check if errors array exists
+    if (err.errors && Array.isArray(err.errors)) {
+      message = err.errors.map((e: any) => e.message).join(", ");
+    } else {
+      message = "Validation failed";
+    }
   }
 
   // JWT errors
@@ -46,5 +52,6 @@ export const globalErrorHandler = (
   res.status(statusCode).json({
     success: false,
     message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 };

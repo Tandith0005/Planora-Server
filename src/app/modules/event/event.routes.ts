@@ -3,6 +3,8 @@ import { authMiddleware } from "../../middleware/auth.middleware.js";
 import { authorize } from "../../middleware/authorize.middleware.js";
 import { Role } from "../../../generated/client/enums.js";
 import { EventController } from "./event.controller.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { EventValidation } from "./event.validation.js";
 const router = express.Router();
 
 
@@ -10,6 +12,7 @@ router.post(
   "/",
   authMiddleware,
   authorize(Role.USER, Role.ADMIN),
+  validateRequest(EventValidation.createEventSchema),
   EventController.createEvent
 );
 
