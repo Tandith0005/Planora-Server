@@ -74,9 +74,6 @@ const joinEvent = async (userId: string, eventId: string) => {
     },
   });
 
-  if (!participant.isPaid && event.registrationFee > 0) {
-    throw new AppError("User has not completed payment", status.BAD_REQUEST);
-  }
 
   return {
     message: "Payment required to complete registration",
@@ -87,33 +84,49 @@ const joinEvent = async (userId: string, eventId: string) => {
 const approveParticipant = async (
   ownerId: string,
   eventId: string,
-  participantId: string,
+  participantId: string
 ) => {
-  // 1. Check ownership
+  // 1. Check event ownership
   const event = await prisma.event.findUnique({
     where: { id: eventId },
   });
 
   if (!event || event.creatorId !== ownerId) {
-    throw new AppError("Not authorized", status.FORBIDDEN);
+    throw new AppError("You are not authorized to manage this event", status.FORBIDDEN);
   }
 
-  // 2. Atomic update
-  const result = await prisma.eventParticipant.updateMany({
+  // 2. Get the participant with payment status
+  const participant = await prisma.eventParticipant.findUnique({
     where: {
       id: participantId,
-      eventId: eventId,
+      eventId: eventId,        
     },
+  });
+
+  if (!participant) {
+    throw new AppError("Participant not found in this event", status.NOT_FOUND);
+  }
+
+  // 3. PAYMENT CHECK HERE
+  if (!participant.isPaid && event.registrationFee > 0) {
+    throw new AppError(
+      "Cannot approve participant. User has not completed payment yet.",
+      status.BAD_REQUEST
+    );
+  }
+
+  // 4. Approve the participant
+  const result = await prisma.eventParticipant.update({
+    where: { id: participantId },
     data: {
       status: ParticipantStatus.APPROVED,
     },
   });
 
-  if (result.count === 0) {
-    throw new AppError("Participant not found in this event", status.NOT_FOUND);
-  }
-
-  return { message: "Participant approved" };
+  return { 
+    message: "Participant approved successfully",
+    participant: result 
+  };
 };
 
 const rejectParticipant = async (
