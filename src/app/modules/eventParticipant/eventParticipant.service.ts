@@ -35,29 +35,53 @@ const joinEvent = async (userId: string, eventId: string) => {
     throw new AppError("Already joined/requested", status.BAD_REQUEST);
   }
 
-  let stat: ParticipantStatus = ParticipantStatus.PENDING;
-  let isPaid = false;
+  // let stat: ParticipantStatus = ParticipantStatus.PENDING;
+  // let isPaid = false;
 
-  // LOGIC BASED ON TYPE + FEE
-  if (event.type === EventType.PUBLIC && event.registrationFee === 0) {
-    stat = ParticipantStatus.APPROVED;
+  // FREE EVENT
+  if (event.registrationFee === 0) {
+    const statusValue =
+      event.type === "PUBLIC"
+        ? ParticipantStatus.APPROVED
+        : ParticipantStatus.PENDING;
+
+    return prisma.eventParticipant.create({
+      data: {
+        userId,
+        eventId,
+        status: statusValue,
+        isPaid: true,
+      },
+    });
   }
 
-  if (event.registrationFee > 0) {
-    // payment required (we'll integrate later)
-    isPaid = false;
-  }
-
+  // PAID EVENT → create pending participant + payment
   const participant = await prisma.eventParticipant.create({
     data: {
       userId,
       eventId,
-      status: stat,
-      isPaid,
+      status: ParticipantStatus.PENDING,
+      isPaid: false,
     },
   });
 
-  return participant;
+  await prisma.payment.create({
+    data: {
+      userId,
+      eventId,
+      amount: event.registrationFee,
+      status: "PENDING",
+    },
+  });
+
+  if (!participant.isPaid && event.registrationFee > 0) {
+    throw new AppError("User has not completed payment", status.BAD_REQUEST);
+  }
+
+  return {
+    message: "Payment required to complete registration",
+    participant,
+  };
 };
 
 const approveParticipant = async (
@@ -152,9 +176,47 @@ const banParticipant = async (
   return { message: "Participant banned" };
 };
 
+const confirmPayment = async (userId: string, eventId: string) => {
+  // 1. Find payment
+  const payment = await prisma.payment.findFirst({
+    where: {
+      userId,
+      eventId,
+      status: "PENDING",
+    },
+  });
+
+  if (!payment) {
+    throw new AppError("Payment not found", status.NOT_FOUND);
+  }
+
+  // 2. Update payment
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: {
+      status: "SUCCESS",
+      transactionId: "TXN_" + Date.now(), // mock
+    },
+  });
+
+  // 3. Update participant
+  await prisma.eventParticipant.updateMany({
+    where: {
+      userId,
+      eventId,
+    },
+    data: {
+      isPaid: true,
+    },
+  });
+
+  return { message: "Payment successful" };
+};
+
 export const EventParticipantService = {
   joinEvent,
   approveParticipant,
   rejectParticipant,
   banParticipant,
+  confirmPayment,
 };

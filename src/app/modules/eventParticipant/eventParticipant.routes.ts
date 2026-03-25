@@ -45,4 +45,11 @@ router.patch(
   EventParticipantController.banParticipant
 );
 
+// Confirm payment
+router.post(
+  "/:eventId/participants/:participantId/confirm-pay",
+  authMiddleware,
+  EventParticipantController.confirmPayment
+);
+
 export const EventParticipantRoutes = router;
