@@ -15,6 +15,8 @@ interface EnvConfig{
     STRIPE_WEBHOOK_SECRET: string;
     STRIPE_SUCCESS_URL: string;
     STRIPE_CANCEL_URL: string;
+    ADMIN_EMAIL: string;
+    ADMIN_PASSWORD: string;
 }
 
 const loadEnvVars = (): EnvConfig => {
@@ -31,7 +33,9 @@ const loadEnvVars = (): EnvConfig => {
         "STRIPE_SECRET_KEY",
         "STRIPE_WEBHOOK_SECRET",
         "STRIPE_SUCCESS_URL",
-        "STRIPE_CANCEL_URL"
+        "STRIPE_CANCEL_URL",
+        "ADMIN_EMAIL",
+        "ADMIN_PASSWORD"
     ];
 
     requireEnvVariable.forEach((key) => {
@@ -53,7 +57,9 @@ const loadEnvVars = (): EnvConfig => {
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
         STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
         STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL as string,
-        STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL as string
+        STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL as string,
+        ADMIN_EMAIL: process.env.ADMIN_EMAIL as string,
+        ADMIN_PASSWORD: process.env.ADMIN_PASSWORD as string
     };
 };
 
