@@ -5,6 +5,7 @@ import {
   InvitationStatus,
   ParticipantStatus,
 } from "../../../generated/client/enums.js";
+import createNotification from "../../utils/createNotification.js";
 
 const sendInvitation = async (
   ownerId: string,
@@ -52,12 +53,10 @@ const sendInvitation = async (
     },
   });
 
-  await prisma.notification.create({
-    data: {
-      userId: invitedUserId,
-      message: "You have been invited to an event",
-    },
-  });
+  await createNotification(
+    invitedUserId,
+    `You have been invited to "${event.title}"`,
+  );
 
   return invitation;
 };
@@ -99,14 +98,28 @@ const acceptInvitation = async (userId: string, invitationId: string) => {
 
   // if paid → create payment
   if (event.registrationFee > 0) {
-    await prisma.payment.create({
-      data: {
-        userId,
-        eventId: event.id,
-        amount: event.registrationFee,
-      },
-    });
+    return {
+      message: "Payment required",
+      eventId: event.id,
+    };
   }
+  // if (event.registrationFee > 0) {
+  //   await prisma.payment.create({
+  //     data: {
+  //       userId,
+  //       eventId: event.id,
+  //       amount: event.registrationFee,
+  //       status: "PENDING",
+  //     },
+  //   });
+
+  //   return {
+  //     message: "Payment required",
+  //     eventId: event.id,
+  //   };
+  // }
+
+  await createNotification(userId, `You joined "${event.title}" successfully`);
 
   return participant;
 };

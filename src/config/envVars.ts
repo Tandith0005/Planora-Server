@@ -11,6 +11,10 @@ interface EnvConfig{
     EMAIL_USER: string;
     EMAIL_PASS: string;
     RESEND_API_KEY: string;
+    STRIPE_SECRET_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+    STRIPE_SUCCESS_URL: string;
+    STRIPE_CANCEL_URL: string;
 }
 
 const loadEnvVars = (): EnvConfig => {
@@ -24,6 +28,10 @@ const loadEnvVars = (): EnvConfig => {
         "EMAIL_USER",
         "EMAIL_PASS",
         "RESEND_API_KEY",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_SUCCESS_URL",
+        "STRIPE_CANCEL_URL"
     ];
 
     requireEnvVariable.forEach((key) => {
@@ -41,7 +49,11 @@ const loadEnvVars = (): EnvConfig => {
         JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
         EMAIL_USER: process.env.EMAIL_USER as string,
         EMAIL_PASS: process.env.EMAIL_PASS as string,
-        RESEND_API_KEY: process.env.RESEND_API_KEY as string
+        RESEND_API_KEY: process.env.RESEND_API_KEY as string,
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
+        STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL as string,
+        STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL as string
     };
 };
 

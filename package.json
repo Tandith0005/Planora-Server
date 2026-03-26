@@ -37,8 +37,12 @@
     "pg": "^8.20.0",
     "prisma": "^7.5.0",
     "resend": "^6.9.4",
+    "stripe": "^21.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/stripe": "^8.0.416"
   }
 }

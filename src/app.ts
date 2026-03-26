@@ -13,7 +13,13 @@ app.use(cors({
   origin: [envVars.BASE_URL, envVars.FRONTEND_URL],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req: any, res, buf) => {
+    if (req.url === "/api/v1/payments/webhook") {
+      req.rawBody = buf;
+    }
+  }
+}));
 app.use(cookieParser());
 
 // auth module
