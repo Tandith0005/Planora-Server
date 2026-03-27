@@ -35,6 +35,7 @@ const approveParticipant = catchAsync(async (req: Request, res: Response) => {
   const result = await EventParticipantService.approveParticipant(
     user.userId,
     eventId,
+    user.role,
     participantId
   );
 
@@ -57,6 +58,7 @@ const rejectParticipant = catchAsync(async (req: Request, res: Response) => {
   const result = await EventParticipantService.rejectParticipant(
     user.userId,
     eventId,
+    user.role,
     participantId
   );
 
@@ -79,6 +81,7 @@ const banParticipant = catchAsync(async (req: Request, res: Response) => {
   const result = await EventParticipantService.banParticipant(
     user.userId,
     eventId,
+    user.role,
     participantId
   );
 

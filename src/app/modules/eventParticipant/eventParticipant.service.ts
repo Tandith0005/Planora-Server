@@ -105,6 +105,7 @@ const joinEvent = async (userId: string, eventId: string) => {
 
 const approveParticipant = async (
   ownerId: string,
+  ownerRole: string,
   eventId: string,
   participantId: string,
 ) => {
@@ -113,7 +114,12 @@ const approveParticipant = async (
     where: { id: eventId },
   });
 
-  if (!event || event.creatorId !== ownerId) {
+  if (!event) {
+    throw new AppError("Event not found", status.NOT_FOUND);
+  }
+
+  // Allow event creator OR admin
+  if (event.creatorId !== ownerId && ownerRole !== "ADMIN") {
     throw new AppError(
       "You are not authorized to manage this event",
       status.FORBIDDEN,
@@ -162,6 +168,7 @@ const approveParticipant = async (
 
 const rejectParticipant = async (
   ownerId: string,
+  ownerRole: string,
   eventId: string,
   participantId: string,
 ) => {
@@ -169,8 +176,16 @@ const rejectParticipant = async (
     where: { id: eventId },
   });
 
-  if (!event || event.creatorId !== ownerId) {
-    throw new AppError("Not authorized", status.FORBIDDEN);
+  if (!event) {
+    throw new AppError("Event not found", status.NOT_FOUND);
+  }
+
+  // Allow event creator OR admin
+  if (event.creatorId !== ownerId && ownerRole !== "ADMIN") {
+    throw new AppError(
+      "You are not authorized to manage this event",
+      status.FORBIDDEN,
+    );
   }
 
   const participant = await prisma.eventParticipant.findUnique({
@@ -200,6 +215,7 @@ const rejectParticipant = async (
 
 const banParticipant = async (
   ownerId: string,
+  ownerRole: string,
   eventId: string,
   participantId: string,
 ) => {
@@ -207,8 +223,16 @@ const banParticipant = async (
     where: { id: eventId },
   });
 
-  if (!event || event.creatorId !== ownerId) {
-    throw new AppError("Not authorized", status.FORBIDDEN);
+  if (!event) {
+    throw new AppError("Event not found", status.NOT_FOUND);
+  }
+
+  // Allow event creator OR admin
+  if (event.creatorId !== ownerId && ownerRole !== "ADMIN") {
+    throw new AppError(
+      "You are not authorized to manage this event",
+      status.FORBIDDEN,
+    );
   }
 
   const participant = await prisma.eventParticipant.findUnique({

@@ -5,6 +5,8 @@ import { prisma } from "../../lib/prisma.js";
 import { envVars } from "../../../config/envVars.js";
 import crypto from "crypto";
 import { sendEmail } from "../../utils/sendEmail.js";
+import AppError from "../../utils/AppError.js";
+import status from "http-status";
 
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
@@ -14,7 +16,7 @@ const registerUser = async (payload: IRegisterUser) => {
   });
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError("User already exists", status.CONFLICT);
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,7 +50,7 @@ const verifyEmail = async (token: string) => {
   });
 
   if (!user) {
-    throw new Error("Invalid or expired token");
+    throw new AppError("Invalid or expired token", status.BAD_REQUEST);
   }
 
   await prisma.user.update({
@@ -70,23 +72,23 @@ const loginUser = async (payload: ILoginUser) => {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new AppError("User not found", status.NOT_FOUND);
   }
 
   // SOFT DELETE CHECK
   if (user.isDeleted) {
-    throw new Error("This user is deleted");
+    throw new AppError("This user is deleted", status.FORBIDDEN);
   }
 
   // EMAIL VERIFICATION CHECK
   if (!user.isVerified) {
-    throw new Error("Please verify your email before logging in");
+    throw new AppError("Please verify your email before logging in", status.FORBIDDEN);
   }
 
   const isPasswordMatched = await bcrypt.compare(password, user.password);
 
   if (!isPasswordMatched) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", status.UNAUTHORIZED);
   }
 
   // JWT TOKENS ------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ const loginUser = async (payload: ILoginUser) => {
 };
 
 const refreshToken = async (token: string) => {
-  if (!token) throw new Error("No refresh token");
+  if (!token) throw new AppError("No refresh token", status.NOT_FOUND);
 
   const decoded = jwt.verify(token, envVars.JWT_REFRESH_SECRET) as any;
 
@@ -126,12 +128,12 @@ const refreshToken = async (token: string) => {
   });
 
   if (!user || user.refreshToken !== token) {
-    throw new Error("Invalid refresh token");
+    throw new AppError("Invalid refresh token", status.UNAUTHORIZED);
   }
 
   // check expiry
   if (user.refreshTokenExpiry! < new Date()) {
-    throw new Error("Refresh token expired, please login again");
+    throw new AppError("Refresh token expired, please login again", status.UNAUTHORIZED);
   }
 
   // generate new tokens 
@@ -163,14 +165,14 @@ const refreshToken = async (token: string) => {
 };
 
 const logoutUser = async (token: string) => {
-  if (!token) throw new Error("No token provided");
+  if (!token) throw new AppError("No token provided", status.NOT_FOUND);
 
   let decoded: any;
 
   try {
     decoded = jwt.verify(token, envVars.JWT_REFRESH_SECRET);
   } catch (err) {
-    throw new Error("Invalid or expired token");
+    throw new AppError("Invalid or expired token", status.UNAUTHORIZED);
   }
 
   await prisma.user.update({

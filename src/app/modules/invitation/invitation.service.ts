@@ -77,6 +77,12 @@ const acceptInvitation = async (userId: string, invitationId: string) => {
 
   const event = invite.event;
 
+  // update invitation
+  await prisma.invitation.update({
+    where: { id: invitationId },
+    data: { status: InvitationStatus.ACCEPTED },
+  });
+
   // create participant
   const participant = await prisma.eventParticipant.create({
     data: {
@@ -90,17 +96,13 @@ const acceptInvitation = async (userId: string, invitationId: string) => {
     },
   });
 
-  // update invitation
-  await prisma.invitation.update({
-    where: { id: invitationId },
-    data: { status: InvitationStatus.ACCEPTED },
-  });
 
   // if paid → create payment
   if (event.registrationFee > 0) {
     return {
-      message: "Payment required",
+      requiresPayment: true,
       eventId: event.id,
+      message: "Invitation accepted. Please complete payment to confirm your spot.",
     };
   }
   // if (event.registrationFee > 0) {
