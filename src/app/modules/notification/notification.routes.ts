@@ -28,4 +28,11 @@ router.patch(
   NotificationController.markAllAsRead
 );
 
+// delete all notifications
+router.delete(
+  "/",
+  authMiddleware,
+  NotificationController.deleteAllNotifications
+);
+
 export const NotificationRoutes = router;

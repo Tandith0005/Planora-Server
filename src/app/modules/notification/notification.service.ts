@@ -76,9 +76,21 @@ const markAllAsRead = async (userId: string) => {
   return { message: "All notifications marked as read" };
 };
 
+// Delete all notifications
+const deleteAllNotifications = async (userId: string) => {
+  await prisma.notification.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  return { message: "All notifications deleted" };
+};
+
 export const NotificationService = {
   // createNotification,
   getMyNotifications,
   markAsRead,
   markAllAsRead,
+  deleteAllNotifications,
 };

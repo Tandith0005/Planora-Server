@@ -59,8 +59,25 @@ const markAllAsRead = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteAllNotifications = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) {
+    throw new AppError("Unauthorized", status.UNAUTHORIZED);
+  }
+
+  const result = await NotificationService.deleteAllNotifications(user.userId);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: result.message,
+    data: null,
+  });
+});
+
 export const NotificationController = {
   getMyNotifications,
   markAsRead,
   markAllAsRead,
+  deleteAllNotifications
 };

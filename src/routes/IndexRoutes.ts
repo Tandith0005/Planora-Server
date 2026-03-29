@@ -3,6 +3,7 @@ import { EventRoutes } from "../app/modules/event/event.routes.js";
 import { EventParticipantRoutes } from "../app/modules/eventParticipant/eventParticipant.routes.js";
 import { InvitationRoutes } from "../app/modules/invitation/invitation.routes.js";
 import { PaymentRoutes } from "../app/modules/payment/payment.routes.js";
+import { NotificationRoutes } from "../app/modules/notification/notification.routes.js";
 
 const router = Router();
 
@@ -14,6 +15,7 @@ router.use('/test', (req:Request, res: Response) => {
 router.use("/events", EventRoutes);
 router.use("/event-participants", EventParticipantRoutes);
 router.use("/invitations", InvitationRoutes);
+router.use("/notifications", NotificationRoutes);
 router.use("/payments", PaymentRoutes);
 
 
