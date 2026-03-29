@@ -8,6 +8,24 @@ import status from "http-status";
 import { catchAsync } from "../../utils/catchAsync.js";
 import AppError from "../../utils/AppError.js";
 
+
+
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError("User not authenticated", status.UNAUTHORIZED);
+  }
+
+  const result = await AuthService.getMe(user.userId);
+
+  res.status(status.OK).json({
+    success: true,
+    message: "User fetched successfully",
+    data: result,
+  });
+});
+
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const validatedData = registerValidationSchema.parse(req.body);
 
@@ -69,13 +87,20 @@ const refreshTokenHandler = catchAsync(async (req: Request, res: Response) => {
   }
 
   const result = await AuthService.refreshToken(token);
+  const isProduction = process.env.NODE_ENV === "production";
 
   res.cookie("accessToken", result.accessToken, {
     httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 15 * 60 * 1000, // 15 mins
   });
 
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   res.json({
@@ -103,6 +128,7 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const AuthController = {
+  getMe,
   registerUser,
   verifyEmail,
   loginUser,

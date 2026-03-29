@@ -8,6 +8,27 @@ import { sendEmail } from "../../utils/sendEmail.js";
 import AppError from "../../utils/AppError.js";
 import status from "http-status";
 
+const getMe = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isVerified: true,
+      isDeleted: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", status.NOT_FOUND);
+  };
+  
+  return user;
+};
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
 
@@ -82,7 +103,10 @@ const loginUser = async (payload: ILoginUser) => {
 
   // EMAIL VERIFICATION CHECK
   if (!user.isVerified) {
-    throw new AppError("Please verify your email before logging in", status.FORBIDDEN);
+    throw new AppError(
+      "Please verify your email before logging in",
+      status.FORBIDDEN,
+    );
   }
 
   const isPasswordMatched = await bcrypt.compare(password, user.password);
@@ -115,6 +139,13 @@ const loginUser = async (payload: ILoginUser) => {
   return {
     accessToken,
     refreshToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+    },
   };
 };
 
@@ -133,20 +164,23 @@ const refreshToken = async (token: string) => {
 
   // check expiry
   if (user.refreshTokenExpiry! < new Date()) {
-    throw new AppError("Refresh token expired, please login again", status.UNAUTHORIZED);
+    throw new AppError(
+      "Refresh token expired, please login again",
+      status.UNAUTHORIZED,
+    );
   }
 
-  // generate new tokens 
+  // generate new tokens
   const newAccessToken = jwt.sign(
     { userId: user.id, role: user.role },
     envVars.JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 
   const newRefreshToken = jwt.sign(
     { userId: user.id },
     envVars.JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
   // update DB
@@ -185,9 +219,10 @@ const logoutUser = async (token: string) => {
 };
 
 export const AuthService = {
+  getMe,
   registerUser,
   verifyEmail,
   loginUser,
   refreshToken,
-  logoutUser
+  logoutUser,
 };

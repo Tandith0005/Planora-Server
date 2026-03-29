@@ -20,13 +20,13 @@ const getAllEvents = async (query: any) => {
     minFee,
     maxFee,
     page = 1,
-    limit = 10,
+    limit = 9,
     sortBy = "date",
     sortOrder = "asc",
   } = query;
 
   const pageNumber = Number(page) || 1;
-  const limitNumber = Number(limit) || 10;
+  const limitNumber = Number(limit) || 9;
   const skip = (pageNumber - 1) * limitNumber;
 
   const whereCondition: Prisma.EventWhereInput = {};
