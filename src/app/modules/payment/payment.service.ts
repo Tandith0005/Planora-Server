@@ -75,8 +75,8 @@ const createCheckoutSession = async (userId: string, eventId: string) => {
       },
     ],
     mode: "payment",
-    success_url: `${envVars.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: envVars.STRIPE_CANCEL_URL,
+    success_url: `${envVars.STRIPE_SUCCESS_URL}/events/${eventId}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${envVars.STRIPE_CANCEL_URL}/events/${eventId}`,
     metadata: {
       userId,
       eventId,

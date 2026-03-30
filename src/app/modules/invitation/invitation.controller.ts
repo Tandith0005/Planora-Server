@@ -33,6 +33,22 @@ const sendInvitation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyInvitations = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) {
+    throw new AppError("User not authenticated", status.UNAUTHORIZED);
+  }
+
+  const result = await InvitationService.getMyInvitations(user.userId);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Invitations fetched successfully",
+    data: result,
+  });
+})
+
 const acceptInvitation = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) {
@@ -77,6 +93,7 @@ const declineInvitation = catchAsync(async (req: Request, res: Response) => {
 
 export const InvitationController = {
   sendInvitation,
+  getMyInvitations,
   acceptInvitation,
   declineInvitation,
 };

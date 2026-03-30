@@ -8,7 +8,7 @@ model Event {
   registrationFee Float    @default(0) @map("registration_fee")
 
   creatorId       String   @map("creator_id")
-  creator         User     @relation("UserEvents", fields: [creatorId], references: [id])
+  creator         User     @relation("UserEvents", fields: [creatorId], references: [id], onDelete: Cascade)
 
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")

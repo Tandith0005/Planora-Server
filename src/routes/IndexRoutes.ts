@@ -4,6 +4,7 @@ import { EventParticipantRoutes } from "../app/modules/eventParticipant/eventPar
 import { InvitationRoutes } from "../app/modules/invitation/invitation.routes.js";
 import { PaymentRoutes } from "../app/modules/payment/payment.routes.js";
 import { NotificationRoutes } from "../app/modules/notification/notification.routes.js";
+import { DashboardRoutes } from "../app/modules/dashboard/dashboard.routes.js";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use("/event-participants", EventParticipantRoutes);
 router.use("/invitations", InvitationRoutes);
 router.use("/notifications", NotificationRoutes);
 router.use("/payments", PaymentRoutes);
+router.use("/dashboard", DashboardRoutes);
 
 
 export const IndexRoutes = router;

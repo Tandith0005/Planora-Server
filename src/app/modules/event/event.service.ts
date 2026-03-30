@@ -114,6 +114,12 @@ const getSingleEvent = async (eventId: string) => {
   return event;
 };
 
+const getMyEvents = async (userId: string) => {
+  return await prisma.event.findMany({
+    where: { creatorId: userId },
+  });
+}
+
 const updateEvent = async (
   userId: string,
   role: string,
@@ -163,6 +169,7 @@ export const EventService = {
   createEvent,
   getAllEvents,
   getSingleEvent,
+  getMyEvents,
   updateEvent,
   deleteEvent,
 };

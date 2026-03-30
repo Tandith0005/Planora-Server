@@ -8,8 +8,8 @@ model Invitation {
 
   createdAt     DateTime @default(now()) @map("created_at")
 
-  event         Event @relation(fields: [eventId], references: [id])
-  invitedUser   User  @relation(fields: [invitedUserId], references: [id])
+  event         Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  invitedUser   User  @relation(fields: [invitedUserId], references: [id], onDelete: Cascade)
 
   @@index([eventId])
   @@index([invitedUserId])

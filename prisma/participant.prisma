@@ -9,8 +9,8 @@ model EventParticipant {
 
   joinedAt  DateTime @default(now()) @map("joined_at")
 
-  user      User  @relation(fields: [userId], references: [id])
-  event     Event @relation(fields: [eventId], references: [id])
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
   @@index([userId])

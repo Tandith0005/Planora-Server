@@ -6,7 +6,6 @@ import {
   ParticipantStatus,
 } from "../../../generated/client/enums.js";
 import createNotification from "../../utils/createNotification.js";
-import { PaymentService } from "../payment/payment.service.js";
 
 const joinEvent = async (userId: string, eventId: string) => {
   // 1. Get event

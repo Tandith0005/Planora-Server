@@ -26,6 +26,32 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateMe = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError("User not authenticated", status.UNAUTHORIZED);
+  }
+
+  const result = await AuthService.updateMe(user.userId, req.body);
+
+  res.status(status.OK).json({
+    success: true,
+    message: "User updated successfully",
+    data: result,
+  });
+});
+
+const searchUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.searchUsers(req.query);
+
+  res.status(status.OK).json({
+    success: true,
+    message: "Users fetched successfully",
+    data: result,
+  });
+});
+
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const validatedData = registerValidationSchema.parse(req.body);
 
@@ -127,11 +153,43 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError("User not authenticated", status.UNAUTHORIZED);
+  }
+
+  const result = await AuthService.deleteUser(user.userId);
+
+  res.status(status.OK).json({
+    success: true,
+    message: "User deleted successfully",
+    data: result,
+  });
+});
+
+const adminDeleteUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await AuthService.adminDeleteUser(id as string);
+
+  res.status(status.OK).json({
+    success: true,
+    message: "User deleted successfully",
+    data: result,
+  });
+});
+
 export const AuthController = {
   getMe,
+  updateMe,
+  searchUsers,
   registerUser,
   verifyEmail,
   loginUser,
   refreshTokenHandler,
-  logoutUser
+  logoutUser,
+  deleteUser,
+  adminDeleteUser,
 };

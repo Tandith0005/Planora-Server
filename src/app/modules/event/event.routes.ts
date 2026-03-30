@@ -19,6 +19,13 @@ router.post(
 // GET ALL EVENTS → public
 router.get("/", EventController.getAllEvents);
 
+// Get my events
+router.get(
+  "/my-events",
+  authMiddleware,
+  EventController.getMyEvents
+);
+
 // GET SINGLE EVENT → public
 router.get("/:id", EventController.getSingleEvent);
 

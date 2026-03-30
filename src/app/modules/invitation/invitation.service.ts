@@ -61,6 +61,13 @@ const sendInvitation = async (
   return invitation;
 };
 
+const getMyInvitations = async (userId: string) => {
+  return await prisma.invitation.findMany({
+    where: { invitedUserId: userId },
+    include: { event: true },
+  });
+}
+
 const acceptInvitation = async (userId: string, invitationId: string) => {
   const invite = await prisma.invitation.findUnique({
     where: { id: invitationId },
@@ -145,6 +152,7 @@ const declineInvitation = async (userId: string, invitationId: string) => {
 
 export const InvitationService = {
   sendInvitation,
+  getMyInvitations,
   acceptInvitation,
   declineInvitation,
 };

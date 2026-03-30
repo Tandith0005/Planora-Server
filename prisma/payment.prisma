@@ -11,8 +11,8 @@ model Payment {
 
   createdAt     DateTime @default(now()) @map("created_at")
 
-  user          User  @relation(fields: [userId], references: [id])
-  event         Event @relation(fields: [eventId], references: [id])
+  user          User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event         Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([eventId])

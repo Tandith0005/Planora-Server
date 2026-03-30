@@ -17,6 +17,14 @@ router.post(
   InvitationController.sendInvitation
 );
 
+// Get my invitations
+router.get(
+  "/my-invitations",
+  authMiddleware,
+  authorize(Role.USER, Role.ADMIN),   
+  InvitationController.getMyInvitations
+);
+
 // Accept invitation
 router.patch(
   "/:invitationId/accept",

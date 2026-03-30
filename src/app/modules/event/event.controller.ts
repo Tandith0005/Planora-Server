@@ -34,6 +34,22 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyEvents = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) {
+    throw new AppError("Unauthorized: No user found", status.UNAUTHORIZED);
+  }
+
+  const result = await EventService.getMyEvents(user.userId);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Events fetched successfully",
+    data: result
+  });
+});
+
 const getSingleEvent = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -91,6 +107,7 @@ const deleteEvent = catchAsync(async (req: Request, res: Response) => {
 export const EventController = {
   createEvent,
   getAllEvents,
+  getMyEvents,
   getSingleEvent,
   updateEvent,
   deleteEvent,

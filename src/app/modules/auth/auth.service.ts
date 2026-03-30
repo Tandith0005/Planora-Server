@@ -29,6 +29,37 @@ const getMe = async (userId: string) => {
   
   return user;
 };
+
+const updateMe = async (userId: string, payload: any) => {
+  return await prisma.user.update({
+    where: { id: userId },
+    data: payload,
+  });
+}
+
+const searchUsers = async (query: any) => {
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [
+        { name: { contains: query.q, mode: "insensitive" } },
+        { email: { contains: query.q, mode: "insensitive" } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isVerified: true,
+      isDeleted: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return users;
+}
+
 const registerUser = async (payload: IRegisterUser) => {
   const { name, email, password } = payload;
 
@@ -218,11 +249,42 @@ const logoutUser = async (token: string) => {
   });
 };
 
+const deleteUser = async (userId: string) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      isDeleted: true,
+    },
+  });
+};
+
+const adminDeleteUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", status.NOT_FOUND);
+  }
+
+  // Soft delete
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isDeleted: true },
+  });
+
+  return { message: "User has been soft deleted" };
+};
+
 export const AuthService = {
   getMe,
+  updateMe,
+  searchUsers,
   registerUser,
   verifyEmail,
   loginUser,
   refreshToken,
   logoutUser,
+  deleteUser,
+  adminDeleteUser,
 };
