@@ -40,21 +40,21 @@ Backend API for Planora — a modern event management platform where users can c
    ```bash
    git clone <backend-repo-url>
    cd backend
-   ```bash
+   ```
 2. Install dependencies
    ```bash
    npm install
-   ```bash
+   ```
 3. Create a `.env` file and set environment variables based on the `.env.example` file
 4. Run Prisma migrations
    ```bash
    npx prisma migrate dev
    npx prisma generate
-   ```bash
+   ```
 5. Start the server
    ```bash
    npm run dev
-   ```bash
+   ```
 
 ### API Endpoints
  - Authentication: /api/auth
