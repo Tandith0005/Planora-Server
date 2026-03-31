@@ -11,7 +11,11 @@ export const authMiddleware = (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies.accessToken;
+    // const token = req.cookies.accessToken;
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : req.cookies?.accessToken;
 
     if (!token) {
       throw new AppError(
@@ -29,7 +33,7 @@ export const authMiddleware = (
     }
 
     // attach user info in request
-    req.user = decoded;
+    req.user = { userId: decoded.userId, role: decoded.role };;
 
     next();
   } catch (error) {

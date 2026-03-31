@@ -83,19 +83,19 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.loginUser(validatedData);
   const isProduction = process.env.NODE_ENV === "production";
 
-  res.cookie("accessToken", result.accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 15 * 60 * 1000, // 15 mins
-  });
+  // res.cookie("accessToken", result.accessToken, {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  //   maxAge: 15 * 60 * 1000, // 15 mins
+  // });
 
-  res.cookie("refreshToken", result.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+  // res.cookie("refreshToken", result.refreshToken, {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  // });
 
   res.status(status.OK).json({
     success: true,
@@ -105,37 +105,44 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const refreshTokenHandler = catchAsync(async (req: Request, res: Response) => {
-  const token = req.cookies.refreshToken;
+  // const token = req.cookies.refreshToken;
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : req.cookies?.refreshToken;
 
   if (!token) {
     throw new AppError("No refresh token provided", status.UNAUTHORIZED);
   }
 
   const result = await AuthService.refreshToken(token);
-  const isProduction = process.env.NODE_ENV === "production";
+  // const isProduction = process.env.NODE_ENV === "production";
 
-  res.cookie("accessToken", result.accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 15 * 60 * 1000, // 15 mins
-  });
+  // res.cookie("accessToken", result.accessToken, {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  //   maxAge: 15 * 60 * 1000, // 15 mins
+  // });
 
-  res.cookie("refreshToken", result.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+  // res.cookie("refreshToken", result.refreshToken, {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  // });
 
   res.json({
     success: true,
     message: "Token refreshed",
+    data: result, // new accessToken + refreshToken
   });
 });
 
 const logoutUser = catchAsync(async (req: Request, res: Response) => {
-  const token = req.cookies.refreshToken;
+  // const token = req.cookies.refreshToken;
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(" ")[1];
 
   if (!token) {
     throw new AppError("No token provided", status.NOT_FOUND);
@@ -143,18 +150,18 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
 
   await AuthService.logoutUser(token);
 
-  const isProduction = process.env.NODE_ENV === "production";
+  // const isProduction = process.env.NODE_ENV === "production";
 
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  // res.clearCookie("accessToken", {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  // });
+  // res.clearCookie("refreshToken", {
+  //   httpOnly: true,
+  //   secure: isProduction,
+  //   sameSite: isProduction ? "none" : "lax",
+  // });
 
   res.json({
     success: true,
