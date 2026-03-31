@@ -8,8 +8,6 @@ import status from "http-status";
 import { catchAsync } from "../../utils/catchAsync.js";
 import AppError from "../../utils/AppError.js";
 
-
-
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
 
@@ -59,8 +57,7 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 
   res.status(status.CREATED).json({
     success: true,
-    message:
-      "User registered successfully. Please verify your email to login",
+    message: "User registered successfully. Please verify your email to login",
     data: result,
   });
 });
@@ -146,8 +143,18 @@ const logoutUser = catchAsync(async (req: Request, res: Response) => {
 
   await AuthService.logoutUser(token);
 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
 
   res.json({
     success: true,
