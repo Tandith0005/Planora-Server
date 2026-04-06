@@ -3,6 +3,11 @@
 ## Project Description
 Backend API for Planora — a modern event management platform where users can create, discover, and participate in public and private events with secure payment integration.
 
+## Live URLs
+- **Github Frontend** : [https://github.com/Tandith0005/Planora-Server](https://github.com/Tandith0005/Planora)
+- **Frontend**: https://level-2-assignment-5-637q.onrender.com
+- **Backend API**: https://level-2-assignment-5-server.onrender.com
+
 ## Database Schema (ERD)
 
 ![Planora ERD](erd/planora-erd.png)
